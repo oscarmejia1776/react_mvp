@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from "react";
+import Header from "./Header.jsx";
+import Footer from "./Footer.jsx";
+import Card from "./Card.jsx";
 
 const App = () => {
-  const [tasks, setTasks] = useState([]);
+  const [applications, setApplications] = useState([]);
 
   useEffect(() => {
-    fetch("/api/tasks")
+    fetch("/api/applications")
       .then((res) => res.json())
-      .then((tasks) => {
-        setTasks(tasks);
+      .then((applications) => {
+        setApplications(applications);
       });
   }, []);
 
   return (
-    <main>
-      {tasks.map((task) => (
-        <span className="task" key={task.id}>
-          {task.description}
-        </span>
+    <>
+      <Header />
+      {applications.map((application) => (
+        <Card
+          className="applications"
+          key={application.id}
+          application={application}
+        />
       ))}
-    </main>
+      <button>+</button>
+      <Footer />
+    </>
   );
 };
 
