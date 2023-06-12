@@ -14,6 +14,9 @@ function Card(props) {
   } = props.application;
   return (
     <div className="card">
+      <button className="delete" onClick>
+        X
+      </button>
       <h1>{company}</h1>
       <p>{position}</p>
       <p>Submit Date: {new Date(submit_date).toLocaleDateString()}</p>
