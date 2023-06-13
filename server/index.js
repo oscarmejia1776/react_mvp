@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import express from "express";
 import pg from "pg";
-// import postgres from "postgres";
 import dotenv from "dotenv";
 
 dotenv.config({ path: "../.env" });
@@ -27,36 +26,34 @@ server.post("/api/applications", (req, res) => {
     company,
     position,
     submit_date,
-    response_date,
     poc,
     poc_email,
     poc_phone,
-    status,
-    application_group,
+    app_result,
+    app_group,
   } = req.body;
 
   db.query(
     `
-    INSERT INTO applications (company, position, submit_date, response_date, poc, poc_email, poc_phone, status, application_group)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
+    INSERT INTO applications (company, position, submit_date, poc, poc_email, poc_phone, app_result, app_group)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
   `,
     [
       company,
       position,
       submit_date,
-      response_date,
       poc,
       poc_email,
       poc_phone,
-      status,
-      application_group,
+      app_result,
+      app_group,
     ]
   ).then((result) => {
     if (result.rows.length === 0 || !result) {
       res.sendStatus(404);
       return;
     } else {
-      res.status(201).send(result.rows);
+      res.status(201).send(result.rows[0]);
     }
   });
 });
@@ -77,7 +74,7 @@ server.delete("/api/applications/:id", (req, res) => {
       res.sendStatus(404);
       return;
     } else {
-      res.status(201).send(result.rows);
+      res.status(201).send(result.rows[0]);
     }
   });
 });
@@ -85,14 +82,7 @@ server.delete("/api/applications/:id", (req, res) => {
 // //////////////////crUd -- Update Application Card//////////////////
 server.patch("/api/applications/:id", (req, res) => {
   const application_id = Number(req.params.id);
-  const {
-    response_date,
-    poc,
-    poc_email,
-    poc_phone,
-    status,
-    application_group,
-  } = req.body;
+  const { poc, poc_email, poc_phone, app_result, app_group } = req.body;
 
   if (Number.isNaN(application_id)) {
     res.status(422);
@@ -101,29 +91,20 @@ server.patch("/api/applications/:id", (req, res) => {
 
   db.query(
     `UPDATE applications
-    SET response_date = COALESCE($1, response_date),
-        poc = COALESCE($2, poc),
-        poc_email = COALESCE($3, poc_email),
-        poc_phone = COALESCE($4, poc_phone),
-        status = COALESCE($5, status),
-        application_group = COALESCE($6, application_group)
-    WHERE id = $7 RETURNING *`,
-    [
-      response_date,
-      poc,
-      poc_email,
-      poc_phone,
-      status,
-      application_group,
-      application_id,
-    ]
+    SET poc = COALESCE($1, poc),
+        poc_email = COALESCE($2, poc_email),
+        poc_phone = COALESCE($3, poc_phone),
+        app_result = COALESCE($4, app_result),
+        app_group = COALESCE($5, app_group)
+    WHERE id = $6 RETURNING *`,
+    [poc, poc_email, poc_phone, app_result, app_group, application_id]
   )
     .then((result) => {
       if (!result.rows || result.rows.length === 0) {
         res.sendStatus(500);
         return;
       }
-      res.status(201).send(result.rows);
+      res.status(201).send(result.rows[0]);
     })
     .catch((err) => {
       console.error(err);

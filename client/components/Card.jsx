@@ -9,23 +9,26 @@ function Card(props) {
     poc,
     poc_email,
     poc_phone,
-    poc_result,
-    poc_group,
+    app_result,
+    app_group,
   } = props.application;
+
+  function handleClick() {
+    props.onDelete(props.id);
+  }
   return (
     <div className="card">
-      <button className="delete" onClick>
+      <button className="delete" onClick={handleClick}>
         X
       </button>
       <h1>{company}</h1>
       <p>{position}</p>
       <p>Submit Date: {new Date(submit_date).toLocaleDateString()}</p>
-      <p>Response Date: {new Date(response_date).toLocaleDateString()}</p>
-      <p>{poc}</p>
+      <p>POC:{poc}</p>
       <p>{poc_email}</p>
       <p>{poc_phone}</p>
-      <p>{poc_result}</p>
-      <p>{poc_group}</p>
+      <p>{app_result}</p>
+      <p>{app_group}</p>
     </div>
   );
 }
