@@ -1,34 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
 
 function Card(props) {
-  const {
-    company,
-    position,
-    submit_date,
-    response_date,
-    poc,
-    poc_email,
-    poc_phone,
-    app_result,
-    app_group,
-  } = props.application;
+  const [editedData, setEditedData] = useState({
+    ...props.application,
+  });
 
   function handleClick() {
     props.onDelete(props.id);
   }
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setEditedData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      props.onUpdate(editedData, props.id);
+    }
+  }
+
   return (
     <div className="card">
-      <button className="delete" onClick={handleClick}>
-        X
-      </button>
-      <h1>{company}</h1>
-      <p>{position}</p>
-      <p>Submit Date: {new Date(submit_date).toLocaleDateString()}</p>
-      <p>POC:{poc}</p>
-      <p>{poc_email}</p>
-      <p>{poc_phone}</p>
-      <p>{app_result}</p>
-      <p>{app_group}</p>
+      <form>
+        <button className="delete" onClick={handleClick}>
+          X
+        </button>
+        <input
+          name="position"
+          value={editedData.position}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Position"
+        />
+        <input
+          name="submit_date"
+          value={new Date(editedData.submit_date).toISOString().split("T")[0]}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Submission Date"
+        />
+        <input
+          name="poc"
+          value={editedData.poc}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Point of Contact"
+        />
+        <input
+          name="poc_email"
+          value={editedData.poc_email}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Email"
+        />
+        <input
+          name="poc_phone"
+          value={editedData.poc_phone}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Phone"
+        />
+        <input
+          name="app_result"
+          value={editedData.app_result}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Application Status"
+        />
+      </form>
     </div>
   );
 }

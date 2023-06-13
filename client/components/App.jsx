@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header.jsx";
 import CreateCard from "./CreateCard.jsx";
-import Footer from "./Footer.jsx";
+// import Footer from "./Footer.jsx";
 import Card from "./Card.jsx";
 
 const App = () => {
@@ -38,6 +38,31 @@ const App = () => {
       });
   }
 
+  function updateApplication(modifiedApplication, id) {
+    fetch(`/api/applications/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(modifiedApplication),
+    })
+      .then((res) => res.json())
+      .then((updatedApplication) => {
+        setApplications((prevApplications) => {
+          const updatedIndex = prevApplications.findIndex(
+            (app) => app.id === updatedApplication.id
+          );
+
+          if (updatedIndex !== -1) {
+            const updatedApplications = [...prevApplications];
+            updatedApplications[updatedIndex] = updatedApplication;
+            return updatedApplications;
+          }
+          return prevApplications;
+        });
+      });
+  }
+
   useEffect(() => {
     fetch("/api/applications")
       .then((res) => res.json())
@@ -57,9 +82,10 @@ const App = () => {
           key={app.id}
           application={app}
           onDelete={deleteApplication}
+          onUpdate={updateApplication}
         />
       ))}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

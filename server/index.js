@@ -30,24 +30,14 @@ server.post("/api/applications", (req, res) => {
     poc_email,
     poc_phone,
     app_result,
-    app_group,
   } = req.body;
 
   db.query(
     `
-    INSERT INTO applications (company, position, submit_date, poc, poc_email, poc_phone, app_result, app_group)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+    INSERT INTO applications (company, position, submit_date, poc, poc_email, poc_phone, app_result)
+    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
   `,
-    [
-      company,
-      position,
-      submit_date,
-      poc,
-      poc_email,
-      poc_phone,
-      app_result,
-      app_group,
-    ]
+    [company, position, submit_date, poc, poc_email, poc_phone, app_result]
   ).then((result) => {
     if (result.rows.length === 0 || !result) {
       res.sendStatus(404);
@@ -82,7 +72,7 @@ server.delete("/api/applications/:id", (req, res) => {
 // //////////////////crUd -- Update Application Card//////////////////
 server.patch("/api/applications/:id", (req, res) => {
   const application_id = Number(req.params.id);
-  const { poc, poc_email, poc_phone, app_result, app_group } = req.body;
+  const { poc, poc_email, poc_phone, app_result } = req.body;
 
   if (Number.isNaN(application_id)) {
     res.status(422);
@@ -94,10 +84,9 @@ server.patch("/api/applications/:id", (req, res) => {
     SET poc = COALESCE($1, poc),
         poc_email = COALESCE($2, poc_email),
         poc_phone = COALESCE($3, poc_phone),
-        app_result = COALESCE($4, app_result),
-        app_group = COALESCE($5, app_group)
-    WHERE id = $6 RETURNING *`,
-    [poc, poc_email, poc_phone, app_result, app_group, application_id]
+        app_result = COALESCE($4, app_result)
+    WHERE id = $5 RETURNING *`,
+    [poc, poc_email, poc_phone, app_result, application_id]
   )
     .then((result) => {
       if (!result.rows || result.rows.length === 0) {

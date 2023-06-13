@@ -9,7 +9,6 @@ function CreateCard(props) {
     poc_email: "",
     poc_phone: "",
     app_result: "",
-    app_group: "",
   });
 
   function handleChange(event) {
@@ -33,14 +32,13 @@ function CreateCard(props) {
       poc_email: "",
       poc_phone: "",
       app_result: "",
-      app_group: "",
     });
     event.preventDefault();
   }
 
   return (
     <>
-      <form>
+      <form className="create">
         <input
           name="company"
           value={application.company}
@@ -83,12 +81,6 @@ function CreateCard(props) {
           value={application.app_result}
           onChange={handleChange}
           placeholder="Application Status"
-        />
-        <input
-          name="app_group"
-          value={application.app_group}
-          onChange={handleChange}
-          placeholder="Application Group"
         />
         <button onClick={submitApplication}>+</button>
       </form>
