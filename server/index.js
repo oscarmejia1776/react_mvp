@@ -14,14 +14,16 @@ const server = express();
 server.use(express.json());
 
 ///////////////////cRud -- Initial Render/////////////////////
-server.get("/api/applications", (req, res) => {
-  db.query("SELECT * FROM applications").then((result) => {
-    res.send(result.rows);
-  });
+server.get("/api/applications", (req, res, next) => {
+  db.query("SELECT * FROM applications")
+    .then((result) => {
+      res.send(result.rows);
+    })
+    .catch(next);
 });
 
 /////////////////Crud -- Creating New Application Card///////////////////////
-server.post("/api/applications", (req, res) => {
+server.post("/api/applications", (req, res, next) => {
   const {
     company,
     position,
@@ -38,18 +40,20 @@ server.post("/api/applications", (req, res) => {
     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
   `,
     [company, position, submit_date, poc, poc_email, poc_phone, app_result]
-  ).then((result) => {
-    if (result.rows.length === 0 || !result) {
-      res.sendStatus(404);
-      return;
-    } else {
-      res.status(201).send(result.rows[0]);
-    }
-  });
+  )
+    .then((result) => {
+      if (result.rows.length === 0 || !result) {
+        res.sendStatus(404);
+        return;
+      } else {
+        res.status(201).send(result.rows[0]);
+      }
+    })
+    .catch(next);
 });
 
 //////////////cruD -- Delete Card Application/////////////
-server.delete("/api/applications/:id", (req, res) => {
+server.delete("/api/applications/:id", (req, res, next) => {
   const application_id = Number(req.params.id);
 
   if (Number.isNaN(application_id)) {
@@ -59,34 +63,38 @@ server.delete("/api/applications/:id", (req, res) => {
 
   db.query(`DELETE FROM applications WHERE id = $1 RETURNING *`, [
     application_id,
-  ]).then((result) => {
-    if (result.rows.length === 0 || !result) {
-      res.sendStatus(404);
-      return;
-    } else {
-      res.status(201).send(result.rows[0]);
-    }
-  });
+  ])
+    .then((result) => {
+      if (result.rows.length === 0 || !result) {
+        res.sendStatus(404);
+        return;
+      } else {
+        res.status(201).send(result.rows[0]);
+      }
+    })
+    .catch(next);
 });
 
 // //////////////////crUd -- Update Application Card//////////////////
-server.patch("/api/applications/:id", (req, res) => {
+server.patch("/api/applications/:id", (req, res, next) => {
   const application_id = Number(req.params.id);
-  const { poc, poc_email, poc_phone, app_result } = req.body;
+  const { company, position, poc, poc_email, poc_phone, app_result } = req.body;
 
   if (Number.isNaN(application_id)) {
-    res.status(422);
+    res.status(422).send("Invalid application ID");
     return;
   }
 
   db.query(
     `UPDATE applications
-    SET poc = COALESCE($1, poc),
-        poc_email = COALESCE($2, poc_email),
-        poc_phone = COALESCE($3, poc_phone),
-        app_result = COALESCE($4, app_result)
-    WHERE id = $5 RETURNING *`,
-    [poc, poc_email, poc_phone, app_result, application_id]
+    SET company = COALESCE($1, company),
+        position = COALESCE($2, position),
+        poc = COALESCE($3, poc),
+        poc_email = COALESCE($4, poc_email),
+        poc_phone = COALESCE($5, poc_phone),
+        app_result = COALESCE($6, app_result)
+    WHERE id = $7 RETURNING *`,
+    [company, position, poc, poc_email, poc_phone, app_result, application_id]
   )
     .then((result) => {
       if (!result.rows || result.rows.length === 0) {
@@ -95,13 +103,15 @@ server.patch("/api/applications/:id", (req, res) => {
       }
       res.status(201).send(result.rows[0]);
     })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
+    .catch(next);
 });
 
 //////////////Listening On Port/////////////////
 server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
+});
+
+server.use((err, req, res, next) => {
+  console.error(err);
+  res.sendStatus(500);
 });

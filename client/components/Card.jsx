@@ -32,6 +32,13 @@ function Card(props) {
           X
         </button>
         <input
+          name="company"
+          value={editedData.company}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Company Name"
+        />
+        <input
           name="position"
           value={editedData.position}
           onChange={handleChange}
